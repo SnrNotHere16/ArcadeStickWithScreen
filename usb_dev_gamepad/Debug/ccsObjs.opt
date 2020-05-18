@@ -1,0 +1,1 @@
+"./startup_ccs.obj" "./usb_dev_gamepad.obj" "./usb_gamepad_structs.obj" "./drivers/buttons.obj" "./utils/uartstdio.obj" "../usb_dev_gamepad_ccs.cmd" -llibc.a -l"C:/ti/tivaware_c_series_2_1_4_178/driverlib/ccs/Debug/driverlib.lib" -l"C:/ti/tivaware_c_series_2_1_4_178/usblib/ccs/Debug/usblib.lib" 
