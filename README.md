@@ -21,3 +21,12 @@ The following is a 15 button arcade stick using the tiva TM4C123GXL microcontrol
   The following mode prints out the button pressed at the moment onto the LCD screen. The mode is activated by pressing button fifteen (top   small yellow button). As stated before, the player can play with this mode but the input is delayed. In order to get out of print mode,     the user must power off the device and restart it. 
   <img src = "ArcadeStickImages/PrintButtonLCD.jpg" width= "500" >
   <img src = "ArcadeStickImages/ButtonPressPrint.jpg" width= "500" >
+# Testing inputs
+ The best way to test the inputs is to type "Set up USB game controllers" into the windows search bar. This should prompt this screen. 
+ 
+ <img src = "ArcadeStickImages/HIDScreen.jpg" width= "500" >
+ 
+ Pressing the buttons and moving the thumbstick should be read by the screen. 
+ 
+  <img src = "ArcadeStickImages/DriverImage.jpg" width= "500" >
+  
