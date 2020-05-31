@@ -5,10 +5,6 @@ The following is a 15 button arcade stick using the tiva TM4C123GXL microcontrol
 <img src = "ArcadeStickImages/ArcadeStickInterior.jpg" width= "500" >
 <img src = "ArcadeStickImages/Arcade%20Stick.jpg" width= "500" >
 
-# 15 Button Arcade Stick Schematic
-
-
-
 # 15 Button Arcade Stick Game Mode: Used while playing the game 
  Initially I had the idea of having the LCD (ST7735) screen print out the controller's input as the player played the game. Unfortunately     that resulted in the game haviing input lag. So I decided to seperate the game modes into two seperate modes (game mode and print button   mode). 
  
