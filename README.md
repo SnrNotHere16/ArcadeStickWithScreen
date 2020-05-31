@@ -30,3 +30,6 @@ The following is a 15 button arcade stick using the tiva TM4C123GXL microcontrol
  
   <img src = "ArcadeStickImages/DriverImage.jpg" width= "500" >
   
+ # Schematic
+ 
+ 
