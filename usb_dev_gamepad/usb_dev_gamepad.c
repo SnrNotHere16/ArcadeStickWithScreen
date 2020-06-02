@@ -24,6 +24,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
 #include "inc/hw_gpio.h"
@@ -44,6 +45,20 @@
 #include "usb_gamepad_structs.h"
 #include "drivers/buttons.h"
 #include "utils/uartstdio.h"
+#include "ST7735.h"
+#include "PLL.h"
+#include "tm4c123gh6pm.h"
+
+// Backlight (pin 10) connected to +3.3 V
+// MISO (pin 9) unconnected
+// SCK (pin 8) connected to PA2 (SSI0Clk)
+// MOSI (pin 7) connected to PA5 (SSI0Tx)
+// TFT_CS (pin 6) connected to PA3 (SSI0Fss)
+// CARD_CS (pin 5) unconnected
+// Data/Command (pin 4) connected to PA6 (GPIO)
+// RESET (pin 3) connected to PA7 (GPIO)
+// VCC (pin 2) connected to +3.3 V
+// Gnd (pin 1) connected to ground
 
 //*****************************************************************************
 //
@@ -67,6 +82,7 @@
 //! Button11 - PC7
 //! Button12 - PF0
 //! BUTTON13 - PF4
+//! BUTTON14 - PA4
 //! The X, Y, and Z coordinates are
 //! reported using the ADC input on GPIO port E pins 1, 2, and 3.  The X input
 //! is on PE3, the Y input is on PE2 and the Z input is on PE1.  These are
@@ -188,7 +204,7 @@ GamepadHandler(void *pvCBData, uint32_t ui32Event, uint32_t ui32MsgData,
             // Update the status.
             //
             UARTprintf("\nHost Connected...\n");
-
+            ST7735_OutString("\n  Host Connected...\n  MAME Controller\n  15 Buttons\n  Yellow:Print\n");
             break;
         }
 
@@ -203,7 +219,7 @@ GamepadHandler(void *pvCBData, uint32_t ui32Event, uint32_t ui32MsgData,
             // Update the status.
             //
             UARTprintf("\nHost Disconnected...\n");
-
+            ST7735_OutString("\nHost Disconnected...\n MAME Controller\n 14 Buttons\n");
             break;
         }
 
@@ -285,7 +301,7 @@ GamepadHandler(void *pvCBData, uint32_t ui32Event, uint32_t ui32MsgData,
 
     return(0);
 }
-
+void printButton();
 //*****************************************************************************
 //
 // Configure the UART and its pins.  This must be called before UARTprintf().
@@ -380,6 +396,11 @@ ADCInit(void)
 int
 main(void)
 {
+    PLL_Init();
+    ST7735_InitR(INITR_REDTAB);
+    ST7735_SetCursor(0,0);
+    ST7735_FillScreen(0);
+  //  uint8_t red, green, blue;
  //*****************************************************************************
  //
  // The HID gamepad report that is returned to the host.
@@ -487,9 +508,16 @@ main(void)
     // The main loop starts here.  We begin by waiting for a host connection
     // then drop into the main gamepad handling section.  If the host
     // disconnects, we return to the top and wait for a new connection.
+
+
+
+
+
     //
     while(1)
     {
+
+
         //
         // Wait here until USB device is connected to a host.
         //
@@ -510,62 +538,83 @@ main(void)
             if(ui16Buttons & BUTTON0)
             {
                 sReportA.ui16Buttons |= 0x0001;
+
             }
 
             if(ui16Buttons & BUTTON1)
             {
                 sReportA.ui16Buttons |= 0x0002;
+
             }
 
             if(ui16Buttons & BUTTON2)
             {
                 sReportA.ui16Buttons |= 0x0004;
+
             }
             if(ui16Buttons & BUTTON3)
             {
                 sReportA.ui16Buttons |= 0x0008;
+
             }
             if(ui16Buttons & BUTTON4)
             {
                 sReportA.ui16Buttons |= 0x0010;
+
             }
             if(ui16Buttons & BUTTON5)
             {
                 sReportA.ui16Buttons |= 0x0020;
+
             }
             if(ui16Buttons & BUTTON6)
             {
                 sReportA.ui16Buttons |= 0x0040;
+
             }
             if(ui16Buttons & BUTTON7)
             {
                 sReportA.ui16Buttons |= 0x0080;
+
             }
 
-            if( (ui16Buttons>>8) & 0x01) //0x10
+            if( (ui16Buttons>>8) & 0x01)
             {
                 sReportA.ui16Buttons |= 0x0100;
+
             }
 
             if((ui16Buttons>>8) & 0x02)
             {
                 sReportA.ui16Buttons |= 0x0200;
+
             }
             if((ui16Buttons>>8) & 0x04)
             {
                 sReportA.ui16Buttons |= 0x0400;
+
             }
             if((ui16Buttons>>8) & 0x08)
             {
                 sReportA.ui16Buttons |= 0x0800;
+
             }
             if((ui16Buttons>>8) & 0x10)
             {
                 sReportA.ui16Buttons |= 0x1000;
+
             }
             if((ui16Buttons>>8) & 0x20)
             {
                 sReportA.ui16Buttons |= 0x2000;
+
+            }
+
+            if((ui16Buttons>>8) & 0x40)
+            {
+                sReportA.ui16Buttons |= 0x4000;
+                printButton();
+
             }
 
 
@@ -603,8 +652,11 @@ main(void)
             //
             if(bUpdate)
             {
+
+
                 USBDHIDGamepadSendReport(&g_sGamepadDevice, &sReportA,
                                          sizeof(sReportA));
+
 
                 //
                 // Now sending data but protect this from an interrupt since
@@ -620,7 +672,7 @@ main(void)
                 if(g_ui32Updates++ == 40)
                 {
                     //
-                    // Turn on the blue LED.
+                    // Turn on the Green LED.
                     //
                     ROM_GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, GPIO_PIN_3);
 
@@ -633,3 +685,194 @@ main(void)
         }
     }
 }
+
+void printButton(){
+    //*****************************************************************************
+    //
+    // The HID gamepad report that is returned to the host.
+    //
+    //*****************************************************************************
+       static tCustomReport sReportA;
+   //*****************************************************************************
+   //
+   // An activity counter to slow the LED blink down to a visible rate.
+   //
+   //*****************************************************************************
+       static uint32_t g_ui32Updates;
+       uint16_t ui16ButtonsChanged, ui16Buttons;
+       bool bUpdate;
+       ST7735_SetCursor(0,0);
+       ST7735_FillScreen(0);
+       ST7735_OutString("\n  PRINT BUTTON\n  Press Buttons\n");
+
+    while (1){
+    //
+    // Wait here until USB device is connected to a host.
+    //
+    if(g_iGamepadState == eStateIdle)
+    {
+        //
+        // No update by default.
+        //
+        bUpdate = false;
+
+        //
+        // See if the buttons updated.
+        //
+        ButtonsPoll(&ui16ButtonsChanged, &ui16Buttons);
+
+        sReportA.ui16Buttons = 0;
+
+        if(ui16Buttons & BUTTON0)
+        {
+            sReportA.ui16Buttons |= 0x0001;
+            ST7735_OutString("  Button1\r");
+
+        }
+
+        if(ui16Buttons & BUTTON1)
+        {
+            sReportA.ui16Buttons |= 0x0002;
+            ST7735_OutString("  Button2\r");
+        }
+
+        if(ui16Buttons & BUTTON2)
+        {
+            sReportA.ui16Buttons |= 0x0004;
+            ST7735_OutString("  Button3\r");
+        }
+        if(ui16Buttons & BUTTON3)
+        {
+            sReportA.ui16Buttons |= 0x0008;
+            ST7735_OutString("  Button4\r");
+        }
+        if(ui16Buttons & BUTTON4)
+        {
+            sReportA.ui16Buttons |= 0x0010;
+            ST7735_OutString("  Button5\r");
+        }
+        if(ui16Buttons & BUTTON5)
+        {
+            sReportA.ui16Buttons |= 0x0020;
+            ST7735_OutString("  Button6\r");
+        }
+        if(ui16Buttons & BUTTON6)
+        {
+            sReportA.ui16Buttons |= 0x0040;
+            ST7735_OutString("  Button7\r");
+        }
+        if(ui16Buttons & BUTTON7)
+        {
+            sReportA.ui16Buttons |= 0x0080;
+            ST7735_OutString("  Button8\r");
+        }
+
+        if( (ui16Buttons>>8) & 0x01)
+        {
+            sReportA.ui16Buttons |= 0x0100;
+            ST7735_OutString("  Button9\r");
+        }
+
+        if((ui16Buttons>>8) & 0x02)
+        {
+            sReportA.ui16Buttons |= 0x0200;
+            ST7735_OutString("  Button10\r");
+        }
+        if((ui16Buttons>>8) & 0x04)
+        {
+            sReportA.ui16Buttons |= 0x0400;
+            ST7735_OutString("  Button11\r");
+        }
+        if((ui16Buttons>>8) & 0x08)
+        {
+            sReportA.ui16Buttons |= 0x0800;
+            ST7735_OutString("  Button12\r");
+        }
+        if((ui16Buttons>>8) & 0x10)
+        {
+            sReportA.ui16Buttons |= 0x1000;
+            ST7735_OutString("  Button13\r");
+        }
+        if((ui16Buttons>>8) & 0x20)
+        {
+            sReportA.ui16Buttons |= 0x2000;
+            ST7735_OutString("  Button14\r");
+        }
+
+        if((ui16Buttons>>8) & 0x40)
+        {
+            sReportA.ui16Buttons |= 0x4000;
+            ST7735_OutString("  Button15\r");
+        }
+
+
+        if(ui16ButtonsChanged)
+        {
+            bUpdate = true;
+        }
+
+        //
+        // See if the ADC updated.
+        //
+        if(ADCIntStatus(ADC0_BASE, 0, false) != 0)
+        {
+            //
+            // Clear the ADC interrupt.
+            //
+            ADCIntClear(ADC0_BASE, 0);
+
+            //
+            // Read the data and trigger a new sample request.
+            //
+            ADCSequenceDataGet(ADC0_BASE, 0, &g_pui32ADCData[0]);
+            ADCProcessorTrigger(ADC0_BASE, 0);
+
+            //
+            // Update the report.
+            //
+            sReportA.i16XPos = Convert8Bit(g_pui32ADCData[0]);
+            sReportA.i16YPos = Convert8Bit(g_pui32ADCData[1]);
+            bUpdate = true;
+        }
+
+        //
+        // Send the report if there was an update.
+        //
+        if(bUpdate)
+        {
+
+
+            USBDHIDGamepadSendReport(&g_sGamepadDevice, &sReportA,
+                                     sizeof(sReportA));
+
+
+            //
+            // Now sending data but protect this from an interrupt since
+            // it can change in interrupt context as well.
+            //
+            IntMasterDisable();
+            g_iGamepadState = eStateSending;
+            IntMasterEnable();
+
+            //
+            // Limit the blink rate of the LED.
+            //
+            if(g_ui32Updates++ == 40)
+            {
+                //
+                // Turn on the Green LED.
+                //
+                ROM_GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, GPIO_PIN_3);
+
+                //
+                // Reset the update count.
+                //
+                g_ui32Updates = 0;
+            }
+        }
+    }
+}
+}
+
+
+
