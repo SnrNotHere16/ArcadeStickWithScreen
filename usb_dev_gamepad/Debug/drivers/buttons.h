@@ -55,8 +55,9 @@ extern "C"
 //! Button11 - PC7
 //! Button12 - PF0
 //! BUTTON13 - PF4
+//! BUTTON14 - PA4
 // The switches tie the GPIO to ground, so the GPIOs need to be configured
-// with pull-ups, and a value of 0 means the switch is pressed.
+// with pull-ups, and a value of 1 means the switch is pressed.
 //
 //*****************************************************************************
 #define BUTTONS_GPIO_PERIPH     SYSCTL_PERIPH_GPIOB
@@ -68,9 +69,12 @@ extern "C"
 #define BUTTONS_GPIO_PERIPH2    SYSCTL_PERIPH_GPIOF
 #define BUTTONS_GPIO_BASE2      GPIO_PORTF_BASE
 
+#define BUTTONS_GPIO_PERIPH3    SYSCTL_PERIPH_GPIOA
+#define BUTTONS_GPIO_BASE3      GPIO_PORTA_BASE
 
 
-#define NUM_BUTTONS            14
+
+#define NUM_BUTTONS            15
 #define BUTTON0                GPIO_PIN_0
 #define BUTTON1                GPIO_PIN_1
 #define BUTTON2                GPIO_PIN_2
@@ -86,11 +90,13 @@ extern "C"
 #define BUTTON11               GPIO_PIN_7
 #define BUTTON12               GPIO_PIN_0
 #define BUTTON13               GPIO_PIN_4
+#define BUTTON14               GPIO_PIN_4
 
 
 #define ALL_BUTTONS             (BUTTON0 | BUTTON1 | BUTTON2 | BUTTON3 | BUTTON4 |BUTTON5 | BUTTON6 |BUTTON7)
 #define ALL_BUTTONS1            (BUTTON8 | BUTTON9 | BUTTON10 | BUTTON11 )
 #define ALL_BUTTONS2            (BUTTON12 | BUTTON13)
+#define ALL_BUTTONS3            (BUTTON14)
 
 //*****************************************************************************
 //
