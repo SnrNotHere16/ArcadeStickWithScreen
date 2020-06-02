@@ -1,6 +1,6 @@
 //*****************************************************************************
 //
-// buttons.c - Evaluation board driver for push buttons.
+// buttons.h - Prototypes for the evaluation board buttons driver.
 //
 // Copyright (c) 2012-2017 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
@@ -22,207 +22,126 @@
 //
 //*****************************************************************************
 
-#include <stdbool.h>
-#include <stdint.h>
-#include "inc/hw_types.h"
-#include "inc/hw_memmap.h"
-#include "inc/hw_gpio.h"
-#include "driverlib/sysctl.h"
-#include "driverlib/rom.h"
-#include "driverlib/rom_map.h"
-#include "driverlib/pin_map.h"
-#include "driverlib/gpio.h"
-#include "drivers/buttons.h"
+#ifndef __BUTTONS_H__
+#define __BUTTONS_H__
 
 //*****************************************************************************
 //
-//! \addtogroup buttons_api
-//! @{
+// If building with a C++ compiler, make all of the definitions in this header
+// have a C binding.
 //
 //*****************************************************************************
-
-//*****************************************************************************
-//
-// Holds the current, debounced state of each button.  A 0 in a bit indicates
-// that that button is currently pressed, otherwise it is released.
-// We assume that we start with all the buttons released (though if one is
-// pressed when the application starts, this will be detected).
-//
-//*****************************************************************************
-static uint16_t g_ui16ButtonStates = ALL_BUTTONS;
-
-//*****************************************************************************
-//
-//! Polls the current state of the buttons and determines which have changed.
-//!
-//! \param pui8Delta points to a character that will be written to indicate
-//! which button states changed since the last time this function was called.
-//! This value is derived from the debounced state of the buttons.
-//! \param pui8RawState points to a location where the raw button state will
-//! be stored.
-//!
-//! This function should be called periodically by the application to poll the
-//! pushbuttons.  It determines both the current debounced state of the buttons
-//! and also which buttons have changed state since the last time the function
-//! was called.
-//!
-//! In order for button debouncing to work properly, this function should be
-//! caled at a regular interval, even if the state of the buttons is not needed
-//! that often.
-//!
-//! If button debouncing is not required, the the caller can pass a pointer
-//! for the \e pui8RawState parameter in order to get the raw state of the
-//! buttons.  The value returned in \e pui8RawState will be a bit mask where
-//! a 1 indicates the buttons is pressed.
-//!
-//! \return Returns the current debounced state of the buttons where a 1 in the
-//! button ID's position indicates that the button is pressed and a 0
-//! indicates that it is released.
-//
-//*****************************************************************************
-uint16_t
-ButtonsPoll(uint16_t *pui16Delta, uint16_t *pui16RawState)
+#ifdef __cplusplus
+extern "C"
 {
-    uint32_t ui32Delta;
-    uint32_t ui32Data;
-    static uint16_t ui16SwitchClockA = 0;
-    static uint16_t ui16SwitchClockB = 0;
-
-    //
-    // Read the raw state of the push buttons.  Save the raw state
-    //  if the caller supplied storage for the
-    // raw value.
-    //
-    ui32Data  = (ROM_GPIOPinRead(BUTTONS_GPIO_BASE2,  GPIO_PIN_0)<<12) |
-                (ROM_GPIOPinRead(BUTTONS_GPIO_BASE2,  GPIO_PIN_4)<<9)  |
-               ((ROM_GPIOPinRead(BUTTONS_GPIO_BASE1, ALL_BUTTONS1))<<4)|
-                (ROM_GPIOPinRead(BUTTONS_GPIO_BASE, ALL_BUTTONS));
-
-
-
-
-    if(pui16RawState)
-    {
-        *pui16RawState =(uint16_t)ui32Data;
-    }
-
-    //
-    // Determine the switches that are at a different state than the debounced
-    // state.
-    //
-    ui32Delta = ui32Data ^ g_ui16ButtonStates;
-
-    //
-    // Increment the clocks by one.
-    //
-    ui16SwitchClockA ^= ui16SwitchClockB;
-    ui16SwitchClockB = ~ui16SwitchClockB;
-
-    //
-    // Reset the clocks corresponding to switches that have not changed state.
-    //
-    ui16SwitchClockA &= ui32Delta;
-    ui16SwitchClockB &= ui32Delta;
-
-    //
-    // Get the new debounced switch state.
-    //
-    g_ui16ButtonStates &= ui16SwitchClockA | ui16SwitchClockB;
-    g_ui16ButtonStates |= (~(ui16SwitchClockA | ui16SwitchClockB)) & ui32Data;
-
-    //
-    // Determine the switches that just changed debounced state.
-    //
-    ui32Delta ^= (ui16SwitchClockA | ui16SwitchClockB);
-
-    //
-    // Store the bit mask for the buttons that have changed for return to
-    // caller.
-    //
-    if(pui16Delta)
-    {
-        *pui16Delta = (uint16_t)ui32Delta;
-    }
-
-    //
-    // Return the debounced buttons states to the caller.  Invert the bit
-    // sense so that a '1' indicates the button is pressed, which is a
-    // sensible way to interpret the return value.
-    //
-    return(~g_ui16ButtonStates);
-}
+#endif
 
 //*****************************************************************************
 //
-//! Initializes the GPIO pins used by the board pushbuttons.
-//!
-//! This function must be called during application initialization to
-//! configure the GPIO pins to which the pushbuttons are attached.  It enables
-//! the port used by the buttons and configures each button GPIO as an input
-//! with a weak pull-down.
-//!
-//! \return None.
+// Defines for the hardware resources used by the pushbuttons.
+//
+// The switches are on the following ports/pins:
+//! Button0 - PB0
+//! Button1 - PB1
+//! Button2 - PB2
+//! Button3 - PB3
+//! Button4 - PB4
+//! Button5 - PB5
+//! Button6 - PB6
+//! Button7 - PB7
+//! Button8 - PC4
+//! Button9 - PC5
+//! Button10 - PC6
+//! Button11 - PC7
+//! Button12 - PF0
+//! BUTTON13 - PF4
+//! BUTTON14 - PA4
+// The switches tie the GPIO to ground, so the GPIOs need to be configured
+// with pull-ups, and a value of 1 means the switch is pressed.
 //
 //*****************************************************************************
-void
-ButtonsInit(void)
+#define BUTTONS_GPIO_PERIPH     SYSCTL_PERIPH_GPIOB
+#define BUTTONS_GPIO_BASE       GPIO_PORTB_BASE
+
+#define BUTTONS_GPIO_PERIPH1    SYSCTL_PERIPH_GPIOC
+#define BUTTONS_GPIO_BASE1      GPIO_PORTC_BASE
+
+#define BUTTONS_GPIO_PERIPH2    SYSCTL_PERIPH_GPIOF
+#define BUTTONS_GPIO_BASE2      GPIO_PORTF_BASE
+
+#define BUTTONS_GPIO_PERIPH3    SYSCTL_PERIPH_GPIOA
+#define BUTTONS_GPIO_BASE3      GPIO_PORTA_BASE
+
+
+
+#define NUM_BUTTONS            15
+#define BUTTON0                GPIO_PIN_0
+#define BUTTON1                GPIO_PIN_1
+#define BUTTON2                GPIO_PIN_2
+#define BUTTON3                GPIO_PIN_3
+#define BUTTON4                GPIO_PIN_4
+#define BUTTON5                GPIO_PIN_5
+#define BUTTON6                GPIO_PIN_6
+#define BUTTON7                GPIO_PIN_7
+
+#define BUTTON8                GPIO_PIN_4
+#define BUTTON9                GPIO_PIN_5
+#define BUTTON10               GPIO_PIN_6
+#define BUTTON11               GPIO_PIN_7
+#define BUTTON12               GPIO_PIN_0
+#define BUTTON13               GPIO_PIN_4
+#define BUTTON14               GPIO_PIN_4
+
+
+#define ALL_BUTTONS             (BUTTON0 | BUTTON1 | BUTTON2 | BUTTON3 | BUTTON4 |BUTTON5 | BUTTON6 |BUTTON7)
+#define ALL_BUTTONS1            (BUTTON8 | BUTTON9 | BUTTON10 | BUTTON11 )
+#define ALL_BUTTONS2            (BUTTON12 | BUTTON13)
+#define ALL_BUTTONS3            (BUTTON14)
+
+//*****************************************************************************
+//
+// Useful macros for detecting button events.
+//
+//*****************************************************************************
+#define BUTTON_PRESSED(button, buttons, changed)                              \
+        (((button) & (changed)) && ((button) & (buttons)))
+
+#define BUTTON_RELEASED(button, buttons, changed)                             \
+        (((button) & (changed)) && !((button) & (buttons)))
+
+//*****************************************************************************
+//
+// If building with a C++ compiler, make all of the definitions in this header
+// have a C binding.
+//
+//*****************************************************************************
+#ifdef __cplusplus
+extern "C"
 {
-    //
-    // Enable the GPIO port to which the pushbuttons are connected.
-    //
-    ROM_SysCtlPeripheralEnable(BUTTONS_GPIO_PERIPH);
-    ROM_SysCtlPeripheralEnable(BUTTONS_GPIO_PERIPH1);
-    ROM_SysCtlPeripheralEnable(BUTTONS_GPIO_PERIPH2);
+#endif
 
+//*****************************************************************************
+//
+// Functions exported from buttons.c
+//
+//*****************************************************************************
+extern void ButtonsInit(void);
+extern uint16_t ButtonsPoll(uint16_t *pui16Delta,
+                             uint16_t *pui16Raw);
 
-    //
-    // Unlock PB0 & PC0 so we can change it to a GPIO input
-    // Once we have enabled (unlocked) the commit register then re-lock it
-    // to prevent further changes.  PF0 & PC0 is muxed with NMI thus a special case.
-    //
-    HWREG(BUTTONS_GPIO_BASE + GPIO_O_LOCK) = GPIO_LOCK_KEY;
-    HWREG(BUTTONS_GPIO_BASE + GPIO_O_CR) |= 0x01;
-    HWREG(BUTTONS_GPIO_BASE + GPIO_O_LOCK) = 0;
-
-    HWREG(BUTTONS_GPIO_BASE1 + GPIO_O_LOCK) = GPIO_LOCK_KEY;
-    HWREG(BUTTONS_GPIO_BASE1 + GPIO_O_CR) |= 0x01;
-    HWREG(BUTTONS_GPIO_BASE1 + GPIO_O_LOCK) = 0;
-
-    HWREG(BUTTONS_GPIO_BASE2 + GPIO_O_LOCK) = GPIO_LOCK_KEY;
-    HWREG(BUTTONS_GPIO_BASE2 + GPIO_O_CR) |= 0x01;
-    HWREG(BUTTONS_GPIO_BASE2 + GPIO_O_LOCK) = 0;
-
-    //
-    // Set each of the button GPIO pins as an input with a pull-down.
-    //
-    ROM_GPIODirModeSet(BUTTONS_GPIO_BASE, ALL_BUTTONS, GPIO_DIR_MODE_IN);
-    MAP_GPIOPadConfigSet(BUTTONS_GPIO_BASE, ALL_BUTTONS,
-                         GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPD );
-
-    ROM_GPIODirModeSet(BUTTONS_GPIO_BASE1, ALL_BUTTONS1, GPIO_DIR_MODE_IN);
-    MAP_GPIOPadConfigSet(BUTTONS_GPIO_BASE1, ALL_BUTTONS1,
-                         GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPD );
-
-    ROM_GPIODirModeSet(BUTTONS_GPIO_BASE2, ALL_BUTTONS2, GPIO_DIR_MODE_IN);
-    MAP_GPIOPadConfigSet(BUTTONS_GPIO_BASE2, ALL_BUTTONS2,
-                         GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU );
-
-    //
-    // Initialize the debounced button state with the current state read from
-    // the GPIO bank.
-    //
-    g_ui16ButtonStates =  (ROM_GPIOPinRead(BUTTONS_GPIO_BASE2,  GPIO_PIN_0)<<12) |
-            (ROM_GPIOPinRead(BUTTONS_GPIO_BASE2,  GPIO_PIN_4)<<9) |
-            (ROM_GPIOPinRead(BUTTONS_GPIO_BASE1, ALL_BUTTONS1)<<4)|
-            ROM_GPIOPinRead(BUTTONS_GPIO_BASE, ALL_BUTTONS);
-
-
-
+//*****************************************************************************
+//
+// Mark the end of the C bindings section for C++ compilers.
+//
+//*****************************************************************************
+#ifdef __cplusplus
 }
+#endif
 
 //*****************************************************************************
 //
-// Close the Doxygen group.
-//! @}
+// Prototypes for the globals exported by this driver.
 //
 //*****************************************************************************
+
+#endif // __BUTTONS_H__
