@@ -40,3 +40,6 @@ The following is a 15 button arcade stick using the tiva TM4C123GXL microcontrol
  <img src = "https://github.com/SnrNotHere16/ArcadeStickWithScreen/blob/master/ArcadeStickImages/Configuration.PNG" width = "300">
 3. Make sure you Tiva c is connected and in debug mode. Go to "Program" and place the bin file ("usb_dev_cgamepad.bin") in "Select .bin file" and click "Program"
   <img src = "https://github.com/SnrNotHere16/ArcadeStickWithScreen/blob/master/ArcadeStickImages/BinProgram.png" width = "300">
+4. Disconnect the tiva c and connect it in "Device" mode. 
+5. To see if the installation is succesful, type "Set up USB game controllers" into the windows search bar. This should prompt this screen. 
+   <img src = "https://github.com/SnrNotHere16/ArcadeStickWithScreen/blob/master/ArcadeStickImages/GameControllersScreen.PNG" width= "500" >
