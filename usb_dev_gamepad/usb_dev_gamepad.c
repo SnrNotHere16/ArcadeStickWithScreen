@@ -534,82 +534,91 @@ main(void)
             ButtonsPoll(&ui16ButtonsChanged, &ui16Buttons);
 
             sReportA.ui16Buttons = 0;
-
+            //Button0
             if(ui16Buttons & BUTTON0)
             {
                 sReportA.ui16Buttons |= 0x0001;
 
             }
-
+            //Button1
             if(ui16Buttons & BUTTON1)
             {
                 sReportA.ui16Buttons |= 0x0002;
 
             }
-
+            //Button2
             if(ui16Buttons & BUTTON2)
             {
                 sReportA.ui16Buttons |= 0x0004;
 
             }
+            //Button3
             if(ui16Buttons & BUTTON3)
             {
                 sReportA.ui16Buttons |= 0x0008;
 
             }
+            //Button4
             if(ui16Buttons & BUTTON4)
             {
                 sReportA.ui16Buttons |= 0x0010;
 
             }
+            //Button5
             if(ui16Buttons & BUTTON5)
             {
                 sReportA.ui16Buttons |= 0x0020;
 
             }
+            //Button6
             if(ui16Buttons & BUTTON6)
             {
                 sReportA.ui16Buttons |= 0x0040;
 
             }
+            //Button7
             if(ui16Buttons & BUTTON7)
             {
                 sReportA.ui16Buttons |= 0x0080;
 
             }
-
+            //Button8
             if( (ui16Buttons>>8) & 0x01)
             {
                 sReportA.ui16Buttons |= 0x0100;
 
             }
-
+            //Button9
             if((ui16Buttons>>8) & 0x02)
             {
                 sReportA.ui16Buttons |= 0x0200;
 
             }
+            //Button10
             if((ui16Buttons>>8) & 0x04)
             {
                 sReportA.ui16Buttons |= 0x0400;
 
             }
+            //Button11
             if((ui16Buttons>>8) & 0x08)
             {
                 sReportA.ui16Buttons |= 0x0800;
 
             }
-            if((ui16Buttons>>8) & 0x10)
+            //Button12 - PF so negative logic
+            if(!((ui16Buttons>>8) & 0x10))
             {
                 sReportA.ui16Buttons |= 0x1000;
 
             }
-            if((ui16Buttons>>8) & 0x20)
+            //Button13 - PF so negative logic
+            if(!((ui16Buttons>>8) & 0x20))
             {
                 sReportA.ui16Buttons |= 0x2000;
 
             }
-
+            //Button14
             if((ui16Buttons>>8) & 0x40)
             {
                 sReportA.ui16Buttons |= 0x4000;
