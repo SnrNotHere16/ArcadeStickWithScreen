@@ -2,6 +2,9 @@ The following is a 15 button arcade stick using the tiva TM4C123GXL microcontrol
 This project has been created without the screen. If you would like to just use the buttons check out this repository 
 https://github.com/SnrNotHere16/ArcadeStickWithoutScreen
 <img src = "https://github.com/SnrNotHere16/ArcadeStickWithoutScreen/blob/master/ArcadeStickImages/PCB_0_0.jpg" width= "500" >
+
+ <img src = "https://github.com/SnrNotHere16/ArcadeStickWithoutScreen/blob/master/ArcadeStickImages/PCB_0_3.jpg" width= "500" >
+ 
 # 15 Button Arcade Stick with Analog thumb Joystick
 
 <img src = "ArcadeStickImages/15ButtonArcadeStick.jpg" width= "500" >
